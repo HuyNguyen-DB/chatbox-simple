@@ -3,7 +3,7 @@ import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
-# Dữ liệu mẫu, bạn nên mở rộng thêm cho thực tế
+# Dữ liệu mẫu cho câu hỏi để train
 train_texts = [
     # Count (20)
     "Có bao nhiêu căn nhà", "Số lượng nhà", "Có mấy căn", "Tổng số nhà",
