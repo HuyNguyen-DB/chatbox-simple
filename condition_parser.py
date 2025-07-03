@@ -26,6 +26,38 @@ def parse_conditions(text):
             if ("không có nội thất" in clause or "không nội thất" in clause) and column == "furnishingstatus":
                 conditions.append((column, "==", "unfurnished"))
                 continue
+            # Phủ định các thuộc tính yes/no (mở rộng mẫu)
+            neg_patterns = [
+                f"không {phrase}",
+                f"không ở {phrase}",
+                f"không thuộc {phrase}",
+                f"không nằm trong {phrase}",
+                f"không có {phrase}",
+                f"không ở {phrase}",
+                f"không nằm ở {phrase}"
+            ]
+            if any(p in clause for p in neg_patterns):
+                conditions.append((column, "==", "no"))
+                continue
+            # Khẳng định các thuộc tính yes/no (chỉ khi không có "không" phía trước)
+            pos_patterns = [
+                f"{phrase}",
+                f"ở {phrase}",
+                f"thuộc {phrase}",
+                f"nằm trong {phrase}",
+                f"có {phrase}",
+                f"ở {phrase}",
+                f"nằm ở {phrase}"
+            ]
+            for p in pos_patterns:
+                # Chỉ match nếu không có "không" phía trước
+                if p in clause and f"không {p}" not in clause:
+                    if column in ["airconditioning", "basement", "hotwaterheating", "mainroad", "guestroom", "prefarea"]:
+                        conditions.append((column, "==", "yes"))
+                        break
+                    elif column == "furnishingstatus":
+                        conditions.append((column, "!=", "unfurnished"))
+                        break
             # Phủ định máy lạnh, nước nóng, basement...
             if ("không có " + phrase) in clause or ("không " + phrase) in clause:
                 conditions.append((column, "==", "no"))
