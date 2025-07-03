@@ -1,3 +1,5 @@
+import re
+
 def generate_response(intent, df_filtered, df, text):
     if df_filtered.empty:
         return "⚠️ Không tìm thấy dữ liệu phù hợp với yêu cầu của bạn."
@@ -29,5 +31,4 @@ def generate_response(intent, df_filtered, df, text):
     elif intent == "list":
         preview = df_filtered.head(10)
         return f"📝 Danh sách một số căn nhà phù hợp:\n{preview.to_string(index=False)}"
-    else:
-        return "🤖 Tôi chưa hiểu rõ yêu cầu của bạn."
+    

@@ -90,6 +90,9 @@ class ChatboxGUI:
             self.text_area.insert(tk.END, "👋 Tạm biệt!\n")
             self.text_area.config(state='disabled')
             self.entry.config(state='disabled')
+            self.text_area.update()
+            self.entry.update()
+            self.text_area.after(500, lambda: (self.text_area.master.quit(), self.text_area.master.destroy()))
             return
         intent = ml_detect_intent(query)
         conditions = parse_conditions(query)

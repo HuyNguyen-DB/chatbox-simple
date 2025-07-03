@@ -42,6 +42,7 @@ train_texts = [
     "Liệt kê nhà có từ 2 đến 4 phòng tắm", "Liệt kê nhà không có nội thất",
     "Liệt kê nhà có 1 chỗ đậu xe", "Liệt kê nhà không có basement"
 ]
+    
 
 train_labels = (
     ["count"] * 20 +

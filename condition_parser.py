@@ -22,31 +22,32 @@ def parse_conditions(text):
     clauses = re.split(r" và |, ", text)
     for clause in clauses:
         for phrase, column in attribute_keywords.items():
-            # Phủ định nội thất
+            # 1. Phủ định nội thất
             if ("không có nội thất" in clause or "không nội thất" in clause) and column == "furnishingstatus":
                 conditions.append((column, "==", "unfurnished"))
                 continue
-            # Phủ định các thuộc tính yes/no (mở rộng mẫu)
+            # 2. Phủ định các thuộc tính yes/no (mở rộng mẫu)
             neg_patterns = [
                 f"không {phrase}",
                 f"không ở {phrase}",
                 f"không thuộc {phrase}",
                 f"không nằm trong {phrase}",
                 f"không có {phrase}",
-                f"không ở {phrase}",
                 f"không nằm ở {phrase}"
             ]
             if any(p in clause for p in neg_patterns):
-                conditions.append((column, "==", "no"))
+                if column == "furnishingstatus":
+                    conditions.append((column, "==", "unfurnished"))
+                else:
+                    conditions.append((column, "==", "no"))
                 continue
-            # Khẳng định các thuộc tính yes/no (chỉ khi không có "không" phía trước)
+            # 3. Khẳng định các thuộc tính yes/no (mở rộng mẫu)
             pos_patterns = [
                 f"{phrase}",
+                f"có {phrase}",
                 f"ở {phrase}",
                 f"thuộc {phrase}",
                 f"nằm trong {phrase}",
-                f"có {phrase}",
-                f"ở {phrase}",
                 f"nằm ở {phrase}"
             ]
             for p in pos_patterns:
@@ -56,13 +57,10 @@ def parse_conditions(text):
                         conditions.append((column, "==", "yes"))
                         break
                     elif column == "furnishingstatus":
-                        conditions.append((column, "!=", "unfurnished"))
+                        # Chỉ lấy furnished hoặc semi-furnished, không lấy unfurnished
+                        conditions.append((column, "in", ["furnished", "semi-furnished"]))
                         break
-            # Phủ định máy lạnh, nước nóng, basement...
-            if ("không có " + phrase) in clause or ("không " + phrase) in clause:
-                conditions.append((column, "==", "no"))
-                continue
-            # Khoảng từ ... đến ...
+            # 4. Khoảng từ ... đến ...
             match_range = re.search(r"từ (\d+) đến (\d+).*" + re.escape(phrase), clause)
             match_range2 = re.search(re.escape(phrase) + r".*từ (\d+) đến (\d+)", clause)
             if match_range:
@@ -75,7 +73,7 @@ def parse_conditions(text):
                 conditions.append((column, ">=", x))
                 conditions.append((column, "<=", y))
                 continue
-            # Điều kiện nhỏ hơn/ít hơn/< (cả hai chiều)
+            # 5. Điều kiện nhỏ hơn/ít hơn/< (cả hai chiều)
             match_lt = re.search(rf"{re.escape(phrase)}.*(nhỏ hơn|ít hơn|dưới|<)\s*(\d+)", clause)
             match_lt2 = re.search(r"(nhỏ hơn|ít hơn|dưới|<)\s*(\d+).*" + re.escape(phrase), clause)
             if match_lt:
@@ -86,7 +84,7 @@ def parse_conditions(text):
                 val = int(match_lt2.group(2))
                 conditions.append((column, "<", val))
                 continue
-            # Điều kiện lớn hơn/nhiều hơn/> (cả hai chiều)
+            # 6. Điều kiện lớn hơn/nhiều hơn/> (cả hai chiều)
             match_gt = re.search(rf"{re.escape(phrase)}.*(lớn hơn|nhiều hơn|trên|>)\s*(\d+)", clause)
             match_gt2 = re.search(r"(lớn hơn|nhiều hơn|trên|>)\s*(\d+).*" + re.escape(phrase), clause)
             if match_gt:
@@ -97,27 +95,21 @@ def parse_conditions(text):
                 val = int(match_gt2.group(2))
                 conditions.append((column, ">", val))
                 continue
-            # Số lượng (ví dụ: 1 chỗ đậu xe)
-            match_eq = re.search(r"(\d+)\s*" + re.escape(phrase), clause)
-            if match_eq:
-                val = int(match_eq.group(1))
+            # 7. Điều kiện bằng/ là/ =
+            match_eq1 = re.search(rf"{re.escape(phrase)}.*(bằng|là|=)\s*(\d+)", clause)
+            match_eq2 = re.search(r"(bằng|là|=)\s*(\d+).*" + re.escape(phrase), clause)
+            if match_eq1:
+                val = int(match_eq1.group(2))
                 conditions.append((column, "==", val))
                 continue
-            # Có thuộc tính
-            if phrase in clause:
-                if column in ["airconditioning", "basement", "hotwaterheating", "mainroad", "guestroom", "prefarea"]:
-                    conditions.append((column, "==", "yes"))
-                elif column == "furnishingstatus":
-                    conditions.append((column, "!=", "unfurnished"))
-                    # Điều kiện bằng/ là/ =
-                match_eq1 = re.search(rf"{re.escape(phrase)}.*(bằng|là|=)\s*(\d+)", clause)
-                match_eq2 = re.search(r"(bằng|là|=)\s*(\d+).*" + re.escape(phrase), clause)
-                if match_eq1:
-                    val = int(match_eq1.group(2))
-                    conditions.append((column, "==", val))
-                    continue
-                if match_eq2:
-                    val = int(match_eq2.group(2))
-                    conditions.append((column, "==", val))
-                    continue
+            if match_eq2:
+                val = int(match_eq2.group(2))
+                conditions.append((column, "==", val))
+                continue
+            # 8. Số lượng (ví dụ: 1 chỗ đậu xe)
+            match_num = re.search(r"(\d+)\s*" + re.escape(phrase), clause)
+            if match_num:
+                val = int(match_num.group(1))
+                conditions.append((column, "==", val))
+                continue
     return conditions
