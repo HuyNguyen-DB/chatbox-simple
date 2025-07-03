@@ -27,7 +27,7 @@ def generate_response(intent, df_filtered, df, text):
         ratio = len(df_filtered) / len(df)
         return f"📈 Khoảng {ratio * 100:.2f}% số căn nhà thỏa mãn điều kiện bạn đưa ra."
     elif intent == "list":
-        preview = df_filtered.head(5)
+        preview = df_filtered.head(10)
         return f"📝 Danh sách một số căn nhà phù hợp:\n{preview.to_string(index=False)}"
     else:
         return "🤖 Tôi chưa hiểu rõ yêu cầu của bạn."
