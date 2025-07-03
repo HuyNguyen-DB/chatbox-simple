@@ -17,7 +17,6 @@ attribute_keywords = {
 }
 
 def parse_conditions(text):
-    import re
     text = text.lower()
     conditions = []
     clauses = re.split(r" và |, ", text)
@@ -26,22 +25,67 @@ def parse_conditions(text):
             # Phủ định nội thất
             if ("không có nội thất" in clause or "không nội thất" in clause) and column == "furnishingstatus":
                 conditions.append((column, "==", "unfurnished"))
+                continue
             # Phủ định máy lạnh, nước nóng, basement...
-            elif ("không có " + phrase) in clause or ("không " + phrase) in clause:
+            if ("không có " + phrase) in clause or ("không " + phrase) in clause:
                 conditions.append((column, "==", "no"))
-            # Số lượng (ví dụ: 1 chỗ đậu xe)
-            elif match := re.search(r"(\d+)\s*" + re.escape(phrase), clause):
-                val = int(match.group(1))
-                conditions.append((column, "==", val))
+                continue
             # Khoảng từ ... đến ...
-            elif match := re.search(r"từ (\d+) đến (\d+).*" + re.escape(phrase), clause):
-                x, y = int(match.group(1)), int(match.group(2))
+            match_range = re.search(r"từ (\d+) đến (\d+).*" + re.escape(phrase), clause)
+            match_range2 = re.search(re.escape(phrase) + r".*từ (\d+) đến (\d+)", clause)
+            if match_range:
+                x, y = int(match_range.group(1)), int(match_range.group(2))
                 conditions.append((column, ">=", x))
                 conditions.append((column, "<=", y))
+                continue
+            if match_range2:
+                x, y = int(match_range2.group(1)), int(match_range2.group(2))
+                conditions.append((column, ">=", x))
+                conditions.append((column, "<=", y))
+                continue
+            # Điều kiện nhỏ hơn/ít hơn/< (cả hai chiều)
+            match_lt = re.search(rf"{re.escape(phrase)}.*(nhỏ hơn|ít hơn|dưới|<)\s*(\d+)", clause)
+            match_lt2 = re.search(r"(nhỏ hơn|ít hơn|dưới|<)\s*(\d+).*" + re.escape(phrase), clause)
+            if match_lt:
+                val = int(match_lt.group(2))
+                conditions.append((column, "<", val))
+                continue
+            if match_lt2:
+                val = int(match_lt2.group(2))
+                conditions.append((column, "<", val))
+                continue
+            # Điều kiện lớn hơn/nhiều hơn/> (cả hai chiều)
+            match_gt = re.search(rf"{re.escape(phrase)}.*(lớn hơn|nhiều hơn|trên|>)\s*(\d+)", clause)
+            match_gt2 = re.search(r"(lớn hơn|nhiều hơn|trên|>)\s*(\d+).*" + re.escape(phrase), clause)
+            if match_gt:
+                val = int(match_gt.group(2))
+                conditions.append((column, ">", val))
+                continue
+            if match_gt2:
+                val = int(match_gt2.group(2))
+                conditions.append((column, ">", val))
+                continue
+            # Số lượng (ví dụ: 1 chỗ đậu xe)
+            match_eq = re.search(r"(\d+)\s*" + re.escape(phrase), clause)
+            if match_eq:
+                val = int(match_eq.group(1))
+                conditions.append((column, "==", val))
+                continue
             # Có thuộc tính
-            elif phrase in clause:
+            if phrase in clause:
                 if column in ["airconditioning", "basement", "hotwaterheating", "mainroad", "guestroom", "prefarea"]:
                     conditions.append((column, "==", "yes"))
                 elif column == "furnishingstatus":
                     conditions.append((column, "!=", "unfurnished"))
+                    # Điều kiện bằng/ là/ =
+                match_eq1 = re.search(rf"{re.escape(phrase)}.*(bằng|là|=)\s*(\d+)", clause)
+                match_eq2 = re.search(r"(bằng|là|=)\s*(\d+).*" + re.escape(phrase), clause)
+                if match_eq1:
+                    val = int(match_eq1.group(2))
+                    conditions.append((column, "==", val))
+                    continue
+                if match_eq2:
+                    val = int(match_eq2.group(2))
+                    conditions.append((column, "==", val))
+                    continue
     return conditions
