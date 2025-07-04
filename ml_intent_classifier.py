@@ -6,7 +6,7 @@ from sklearn.linear_model import LogisticRegression
 # Câu hỏi mẫu để train model
 # Chia thành 4 loại: count, mean, ratio, list
 train_texts = [
-    # Count (26)
+    # Count (30)
     "Có bao nhiêu căn nhà", "Số lượng nhà", "Có mấy căn", "Tổng số nhà",
     "Có bao nhiêu căn có máy lạnh", "Có bao nhiêu nhà có 3 phòng ngủ",
     "Có bao nhiêu nhà có nước nóng", "Có bao nhiêu nhà có basement",
@@ -18,7 +18,11 @@ train_texts = [
     "Có bao nhiêu nhà có nhiều tầng", "Có bao nhiêu nhà có ít phòng ngủ", "Có tổng cộng bao nhiêu căn nhà?",
     "Có bao nhiêu nhà ở khu ưu tiên", "Số căn nhà hiện có là bao nhiêu?", "Có tất cả mấy căn nhà?", "Có bao nhiêu căn nhà đang bán?",
     "Có bao nhiêu căn nhà phù hợp điều kiện?",
-    # Mean (25)
+    "Hiện có bao nhiêu căn nhà trên hệ thống?",
+    "Có tổng số bao nhiêu căn nhà đang rao bán?",
+    "Cho tôi biết số lượng nhà hiện tại?",
+    "Bao nhiêu căn nhà đáp ứng điều kiện tìm kiếm?",
+    # Mean (30)
     "Giá trung bình", "Diện tích trung bình", "Trung bình giá", "Trung bình diện tích",
     "Giá nhà trung bình", "Diện tích nhà trung bình", "Diện tích trung bình nhà có basement",
     "Giá trung bình nhà có 2 tầng", "Trung bình số phòng ngủ của nhà có máy lạnh",
@@ -30,7 +34,12 @@ train_texts = [
     "Nhà không có máy lạnh thì giá trung bình bao nhiêu", "Trung bình giá nhà có nhiều tầng", "Trung bình giá nhà là bao nhiêu?",
     "Trung bình diện tích các căn nhà là bao nhiêu?", "Giá trung bình của nhà có nội thất là bao nhiêu?", 
     "Diện tích trung bình của nhà có máy lạnh là bao nhiêu?", "Trung bình mỗi căn nhà có bao nhiêu phòng ngủ?",
-    # Ratio (25)
+    "Trung bình mỗi căn nhà có bao nhiêu tầng?",
+    "Giá bán trung bình của các căn nhà là bao nhiêu?",
+    "Diện tích trung bình của nhà có tầng hầm là bao nhiêu?",
+    "Trung bình mỗi căn nhà có mấy phòng tắm?",
+    "Trung bình mỗi căn nhà có bao nhiêu chỗ đậu xe?",
+    # Ratio (30)
     "Tỷ lệ nhà có máy lạnh", "Phần trăm nhà có nội thất", "Chiếm bao nhiêu phần trăm",
     "Tỷ lệ nhà có nước nóng", "Tỷ lệ nhà có 2 phòng tắm", "Tỷ lệ nhà có basement",
     "Tỷ lệ nhà có 3 tầng", "Tỷ lệ nhà có diện tích trên 9000", "Tỷ lệ nhà không có máy lạnh",
@@ -43,6 +52,11 @@ train_texts = [
     "Phần trăm nhà có nội thất là bao nhiêu?",
     "Có bao nhiêu phần trăm nhà có diện tích trên 5000?",
     "Tỷ lệ nhà có giá trên 10 triệu là bao nhiêu?",
+    "Tỷ lệ nhà có chỗ đậu xe là bao nhiêu phần trăm?",
+    "Bao nhiêu phần trăm nhà có phòng khách?",
+    "Tỷ lệ nhà có nội thất bán được là bao nhiêu?",
+    "Phần trăm nhà có máy lạnh là bao nhiêu?",
+    "Chiếm bao nhiêu phần trăm nhà có tầng hầm?",
     # List (27)
     "Liệt kê nhà có máy lạnh", "Danh sách nhà có 3 phòng ngủ", "Nhà có 1 phòng ngủ",
     "Nhà có diện tích trên 8000", "Nhà có nội thất", "Nhà có nước nóng", "Nhà có 2 tầng",
@@ -54,15 +68,18 @@ train_texts = [
     "Danh sách nhà có 2 tầng và có máy lạnh",
     "Cho tôi xem các căn nhà có giá dưới 8 triệu",
     "Hiển thị các căn nhà có nội thất đầy đủ",
-    "Tìm các căn nhà có tầng hầm và nước nóng"
+    "Tìm các căn nhà có tầng hầm và nước nóng",
+    "Liệt kê các căn nhà có giá dưới 5 triệu",
+    "Cho tôi xem danh sách nhà có 3 tầng",
+    "Hiển thị các căn nhà có phòng khách và nước nóng"
 ]
     
 
 train_labels = (
-    ["count"] * 26 +
-    ["mean"] * 25 +
-    ["ratio"] * 25 +
-    ["list"] * 27
+    ["count"] * 30 +
+    ["mean"] * 30 +
+    ["ratio"] * 30 +
+    ["list"] * 30
 )
 
 print("Số lượng train_texts:", len(train_texts))
