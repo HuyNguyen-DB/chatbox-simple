@@ -40,7 +40,7 @@ train_texts = [
     "Nhà không có máy lạnh", "Nhà không có nước nóng", "Nhà có basement", "Nhà có 4 phòng tắm",
     "Nhà có diện tích lớn", "Nhà có giá cao", "Nhà có nhiều tầng", "Nhà có ít phòng ngủ",
     "Liệt kê nhà có từ 2 đến 4 phòng tắm", "Liệt kê nhà không có nội thất",
-    "Liệt kê nhà có 1 chỗ đậu xe", "Liệt kê nhà không có basement"
+    "Liệt kê nhà có 1 chỗ đậu xe", "Liệt kê nhà không có basement", "Tìm nhà có diện tích trên 3000", "Tìm nhà có nội thất"
 ]
     
 
@@ -48,7 +48,7 @@ train_labels = (
     ["count"] * 20 +
     ["mean"] * 20 +
     ["ratio"] * 20 +
-    ["list"] * 20
+    ["list"] * 22
 )
 
 print("Số lượng train_texts:", len(train_texts))
@@ -66,6 +66,10 @@ def train_and_save():
     joblib.dump(vectorizer, VEC_PATH)
 
 def ml_detect_intent(text):
+    text_lower = text.lower()
+    # Ưu tiên rule cho "tìm"
+    if text_lower.strip().startswith("tìm") or "tìm nhà" in text_lower:
+        return "list"
     # Nếu chưa có model thì huấn luyện
     if not os.path.exists(MODEL_PATH) or not os.path.exists(VEC_PATH):
         train_and_save()
