@@ -6,6 +6,8 @@ from response_generator import generate_response
 from ml_intent_classifier import ml_detect_intent
 import pandas as pd
 
+import numpy as np
+
 def apply_conditions(df, conditions):
     for col, op, val in conditions:
         if col in df.columns:
@@ -21,7 +23,10 @@ def apply_conditions(df, conditions):
                 elif isinstance(val, list):
                     val = [str(v).lower() for v in val]
         if op == "==":
-            df = df[df[col] == val]
+            if pd.api.types.is_numeric_dtype(df[col]):
+                df = df[np.isclose(df[col], val)]
+            else:
+                df = df[df[col] == val]
         elif op == "!=":
             df = df[df[col] != val]
         elif op == "in":
